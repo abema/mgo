@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/abema/mgo"
+	"github.com/abema/mgo/bson"
+	"github.com/abema/mgo/dbtest"
+	"github.com/abema/mgo/txn"
 	. "gopkg.in/check.v1"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
-	"gopkg.in/mgo.v2/dbtest"
-	"gopkg.in/mgo.v2/txn"
 )
 
 func TestAll(t *testing.T) {
