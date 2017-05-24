@@ -241,7 +241,7 @@ const (
 //     http://docs.mongodb.org/manual/reference/connection-string/
 //
 func Dial(url string) (*Session, error) {
-	session, err := DialWithTimeout(url, 10*time.Second)
+	session, err := DialWithTimeout(url, 10*time.Second, 10*time.Second)
 	if err == nil {
 		session.SetSyncTimeout(1 * time.Minute)
 		session.SetSocketTimeout(1 * time.Minute)
@@ -255,12 +255,13 @@ func Dial(url string) (*Session, error) {
 // forever waiting for a connection to be made.
 //
 // See SetSyncTimeout for customizing the timeout for the session.
-func DialWithTimeout(url string, timeout time.Duration) (*Session, error) {
+func DialWithTimeout(url string, timeout time.Duration, resolveTimeout time.Duration) (*Session, error) {
 	info, err := ParseURL(url)
 	if err != nil {
 		return nil, err
 	}
 	info.Timeout = timeout
+	info.ResolveTimeout = resolveTimeout
 	return DialWithInfo(info)
 }
 
@@ -338,6 +339,9 @@ type DialInfo struct {
 	// timeout is zero, the call may block forever waiting for a connection
 	// to be established. Timeout does not affect logic in DialServer.
 	Timeout time.Duration
+
+	// ResolveTimeout is the amount of time to wait for resolving server address
+	ResolveTimeout time.Duration
 
 	// FailFast will cause connection and query attempts to fail faster when
 	// the server is unavailable, instead of retrying until the configured
@@ -422,7 +426,7 @@ func DialWithInfo(info *DialInfo) (*Session, error) {
 		}
 		addrs[i] = addr
 	}
-	cluster := newCluster(addrs, info.Direct, info.FailFast, dialer{info.Dial, info.DialServer}, info.Timeout, info.ReplicaSetName)
+	cluster := newCluster(addrs, info.Direct, info.FailFast, dialer{info.Dial, info.DialServer}, info.ResolveTimeout, info.ReplicaSetName)
 	session := newSession(Eventual, cluster, info.Timeout)
 	session.defaultdb = info.Database
 	if session.defaultdb == "" {
