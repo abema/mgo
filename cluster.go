@@ -64,14 +64,14 @@ type mongoCluster struct {
 	resolveTimeout time.Duration
 }
 
-func newCluster(userSeeds []string, direct, failFast bool, dial dialer, timeout time.Duration, setName string) *mongoCluster {
+func newCluster(userSeeds []string, direct, failFast bool, dial dialer, resolveTimeout time.Duration, setName string) *mongoCluster {
 	cluster := &mongoCluster{
 		userSeeds:      userSeeds,
 		references:     1,
 		direct:         direct,
 		failFast:       failFast,
 		dial:           dial,
-		resolveTimeout: timeout,
+		resolveTimeout: resolveTimeout,
 		setName:        setName,
 	}
 	cluster.serverSynced.L = cluster.RWMutex.RLocker()
